@@ -1,39 +1,64 @@
-import logo from './logo.svg';
+import { useState,useEffect } from 'react';
+import { v4 as uuidv4 } from 'uuid'
+
 import './App.css';
-import { useState } from 'react';
+
+// Components
 import ExpenseList from './components/ExpenseList';
 import ExpenseForm from './components/ExpenseForm';
 import ExpenseFilter from './components/ExpenseFilter';
-import { v4 as uuidv4 } from 'uuid'
 
 export const categories=['Utilities','Entertainment','Groceries']
-function App() {
-  const handleDeleteAll=()=>{
-setExpenses([])
-  }
-  // const [test,setTest]=useState()
-const [expenses,setExpenses]=useState([
-  {id:1,description:'movie',amount:10,category:'Entertainment'},
+
+const App =() =>{
+
+  const originalExp = [
+    {id:1,description:'movie',amount:10,category:'Entertainment'},
     {id:2,description:'internet',amount:10,category:'Utilities'},
     {id:3,description:'PS4',amount:10,category:'Entertainment'},
     {id:4,description:'milk',amount:10,category:'Groceries'}
-])
-const[newExpenses,setNewExpenses]=useState(expenses)
-const handleSelect=(category)=>{
-  console.log(category);
-  if (category==='all')setExpenses(expenses)
-  else{
-  setExpenses(expenses.filter((e)=>e.category===category))
-// setNewExpenses(category.target.value)
+  ]
+const [expenses,setExpenses]=useState(originalExp);
+const [filteredExpenses,setFilteredExpenses] = useState(originalExp)
 
-}}
+const [filterValue, setFilterValue] = useState('all');
+
+const handleChangeFilter = (e) => {
+  const selectedValue = e.target.value;
+  setFilterValue(selectedValue);
+
+  // Update the exp state based on the selected value
+  if (selectedValue === 'all') {
+    setFilteredExpenses(expenses);
+  } else {
+    setFilteredExpenses(expenses.filter(item => item.category === selectedValue));
+  }
+};
+
+const submitHandler = (e) =>{
+  const newExpense = {...e,id:uuidv4()};
+  setExpenses([...expenses,newExpense]);
+
+  if(filterValue === 'all' || filterValue === newExpense.category){
+    setFilteredExpenses([...filteredExpenses,newExpense])
+  }
+
+}
+
+const handleDeleteAll=()=>{
+  setExpenses([])
+  setFilteredExpenses([])
+    }
+
   return (
     <div>
-      <ExpenseForm handSubmit={e=>setExpenses([...expenses,{...e,id:uuidv4()}])} handleDeleteAll={handleDeleteAll}/>
-      <ExpenseFilter handleSelect={handleSelect} />
-      <ExpenseList handleDelete={(id)=>setExpenses(expenses.filter(e=>e.id!==id))} expenses={expenses} newExpenses={newExpenses}/>
+      <ExpenseForm handSubmit={submitHandler} handleDeleteAll={handleDeleteAll}/>
+      <ExpenseFilter handleSelect={handleChangeFilter} />
+      <ExpenseList handleDelete={(id)=>{setExpenses(expenses.filter(e=>e.id!==id)); setFilteredExpenses.filter(e=>e.id !== id)}} expenses={filteredExpenses}/>
     </div>
   );
 }
 
 export default App;
+
+

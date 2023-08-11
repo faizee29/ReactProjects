@@ -1,9 +1,5 @@
 import React from 'react'
-import { categories } from '../App'
-
-
-
-const ExpenseList = ({expenses,handleDelete,newExpenses}) => {
+const ExpenseList = ({expenses,handleDelete}) => {
   return (
     <table className="table table-bordered">
         <thead>
